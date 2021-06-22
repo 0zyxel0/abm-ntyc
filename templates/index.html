@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ABM Segregation Project</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Roboto);
+
+      body {
+        font-family: Roboto, sans-serif;
+      }
+
+      #chart {
+        max-width: 650px;
+        margin: 35px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      {{message}}
+      <v-app>
+        <v-main>
+          <v-container>
+            <v-row>
+              <v-col cols="6" md="4">
+                <v-card class="pa-2" outlined tile>
+                  <v-card-text>
+                    <v-card flat>
+                      <v-card-title>Population Option</v-card-title>
+                      <v-divider></v-divider>
+                      <v-card-text>
+                        <v-row>
+                          <v-col cols="4">
+                            <v-subheader> Population Size</v-subheader>
+                          </v-col>
+                          <v-col cols="8">
+                            <v-text-field
+                              outlined
+                              v-model="payloadRequest.populationSize"
+                            ></v-text-field>
+                          </v-col>
+                        </v-row>
+
+                        <v-slider
+                          v-model="payloadRequest.populationSize"
+                          step="1"
+                          min="0"
+                          max="30"
+                          thumb-label
+                          ticks
+                        ></v-slider>
+                      </v-card-text>
+                    </v-card>
+                    <v-card flat>
+                      <v-card-text>
+                        Feature Options
+                        <v-divider></v-divider>
+                        <v-row>
+                          <v-col>
+                            <v-checkbox
+                              v-model="selected"
+                              label="Religion"
+                              value="religion"
+                            ></v-checkbox>
+                          </v-col>
+                          <v-col>
+                            <v-checkbox
+                              v-model="selected"
+                              label="Race"
+                              value="race"
+                            ></v-checkbox>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                      <v-divider></v-divider>
+                      <v-row>
+                        <v-col>
+                          <v-card flat>
+                            <v-card-text>
+                              <v-row>
+                                <v-col cols="4">
+                                  <v-subheader>
+                                    Max Processing Time</v-subheader
+                                  >
+                                  <v-subheader>(in timesteps)</v-subheader>
+                                </v-col>
+                                <v-col cols="8">
+                                  <v-text-field
+                                    outlined
+                                    v-model="payloadRequest.maxTime"
+                                  ></v-text-field>
+                                </v-col>
+                              </v-row>
+                            </v-card-text>
+                          </v-card>
+                        </v-col>
+                      </v-row>
+                    </v-card>
+
+                    <v-card flat>
+                      <v-card-title>Tolerance Options</v-card-title>
+                      <v-divider></v-divider>
+                      <v-card-text>
+                        <v-slider
+                          v-model="religionVal"
+                          step="1"
+                          min="0"
+                          max="100"
+                          thumb-label
+                          ticks
+                        ></v-slider>
+                        <v-slider
+                          v-model="raceVal"
+                          step="1"
+                          min="0"
+                          max="100"
+                          thumb-label
+                          ticks
+                        ></v-slider
+                        ><v-slider
+                          v-model="whateverVal"
+                          step="1"
+                          min="0"
+                          max="100"
+                          thumb-label
+                          ticks
+                        ></v-slider>
+                      </v-card-text>
+                    </v-card>
+                    <!-- <v-btn @click="randomizer()">Randomize</v-btn> -->
+                    <v-btn @click="mockProcess()">Mock Process</v-btn>
+                    <v-btn @click="sendChartRequest()"
+                      >Start Processing Request</v-btn
+                    >
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" sm="6" md="8">
+                <v-card class="pa-2" outlined tile>
+                  <apexchart
+                    type="heatmap"
+                    :options="chartOptions"
+                    :series="series"
+                  ></apexchart>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+      integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+
+    <script>
+      const socket = io.connect(
+        "http://" + document.domain + ":" + location.port
+      );
+
+      var app = new Vue({
+        el: "#app",
+        components: {
+          apexchart: VueApexCharts,
+        },
+        vuetify: new Vuetify(),
+        mounted() {
+          socket.on("connect", function () {
+            console.log(`Initialized Connection`);
+          });
+        },
+        created() {
+          this.maintainConnection();
+        },
+        methods: {
+          maintainConnection() {
+            socket.on("RESPONSE_EVENT", (fetchedData) => {
+              this.series = [];
+              // Convert Object and Deep Copy
+              console.log(`[Process] Cleaning Payload`);
+              let seriesCopy = this.cleanPayload(fetchedData);
+              let convertedCopy = JSON.parse(seriesCopy);
+              this.series = convertedCopy.payload;
+            });
+          },
+          sendChartRequest() {
+            console.log(
+              `[sendChartRequest] Sending Charting Command to Service`
+            );
+            console.log(
+              `[sendChartRequest] Sending Processing Request ${JSON.stringify(
+                this.payloadRequest
+              )}`
+            );
+            socket.emit("PROCESS_CHARTING_COMMAND", this.payloadRequest);
+          },
+          mockProcess() {
+            let app = this;
+            (function myLoop(i) {
+              setTimeout(function () {
+                app.series = [];
+                app.initializeData();
+                if (--i) myLoop(i); //  decrement i and call myLoop again if i > 0
+              }, 500);
+            })(10); //Number of Iterations to do
+          },
+          // randomizer() {
+          //   this.series = [];
+          //   this.initializeData();
+          // },
+          converJsonPayload(payload) {
+            let cleaned = this.cleanPayload(payload);
+            let convertStage = JSON.stringify(cleaned);
+            console.log(typeof convertStage);
+            return convertStage;
+          },
+          cleanPayload(payload) {
+            let dirtyPayload = payload;
+            let cleanPayload = dirtyPayload.replace(/'/g, '"');
+            return cleanPayload;
+          },
+          generateData(count, yrange) {
+            var i = 0;
+            var series = [];
+            while (i < count) {
+              var x = `Type ${i}`.toString();
+              var y =
+                Math.floor(Math.random() * (yrange.max - yrange.min + 1)) +
+                yrange.min;
+
+              series.push({
+                x: x,
+                y: y,
+              });
+              i++;
+            }
+            return series;
+          },
+          initializeData() {
+            this.series = [
+              {
+                name: "Type 0",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 1",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 2",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 3",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 4",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 5",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 6",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 7",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 8",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 9",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+              {
+                name: "Type 10",
+                data: this.generateData(10, {
+                  min: 0,
+                  max: 90,
+                }),
+              },
+            ];
+          },
+        },
+        data: {
+          message: "Hello Vue!",
+          payloadRequest: {
+            populationSize: 0,
+            vacancySize: 0,
+            maxTime: 0,
+          },
+
+          populationVal: 0,
+          religionVal: 0,
+          raceVal: 0,
+          whateverVal: 0,
+          selected: [],
+          chartOptions: {
+            dataLabels: {
+              enabled: false,
+            },
+            chart: {
+              toolbar: {
+                show: false,
+              },
+              width: "100%",
+            },
+            colors: ["#008FFB"],
+            xaxis: {
+              type: "category",
+            },
+          },
+          series: [],
+        },
+      });
+    </script>
+  </body>
+</html>
