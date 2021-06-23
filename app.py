@@ -34,12 +34,14 @@ def client_connect():
 def processChartingRequest(jsonPayload):
     print('Receive Charting Request : ' + str(jsonPayload))
     maxTime = jsonPayload['maxTime']
-    print('Recieved Data : ' + str(jsonPayload))
-    print('Transforming Data : ', type(jsonPayload))
+    populationSize = jsonPayload['populationSize']
+    print('Processing Request')    
+    print('Population Size : ' + str(populationSize))
+    print('Max Time : ' + str(maxTime))
     x = 0
     while x < int(maxTime):
         socketio.sleep(0)
-        df = generateRandomHeat(10,10)
+        df = generateRandomHeat(populationSize,populationSize)
         print("Emitting Event")
         emit('RESPONSE_EVENT', str(df))
         time.sleep(0.5)

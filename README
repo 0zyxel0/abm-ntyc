@@ -1,0 +1,5 @@
+install packages
+
+!pip install flask
+!pip install flast_socketio
+!pip install CORS
