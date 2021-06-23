@@ -22,7 +22,7 @@
       }
 
       #chart {
-        max-width: 650px;
+        max-width: 400px;
         margin: 35px auto;
       }
     </style>
@@ -41,8 +41,8 @@
               <v-col cols="6" md="4">
                 <v-card class="pa-2" outlined tile>
                   <v-card-text>
-                    <v-card flat>
-                      <v-card-title>Population Option</v-card-title>
+                    <v-card dense flat>
+                      <v-card-title>Options</v-card-title>
                       <v-divider></v-divider>
                       <v-card-text>
                         <v-row>
@@ -67,25 +67,57 @@
                         ></v-slider>
                       </v-card-text>
                     </v-card>
-                    <v-card flat>
+                    <v-card dense flat>
                       <v-card-text>
                         Feature Options
                         <v-divider></v-divider>
-                        <v-row>
-                          <v-col>
-                            <v-checkbox
-                              v-model="selected"
-                              label="Religion"
-                              value="religion"
-                            ></v-checkbox>
+                        <v-checkbox
+                          v-model="religionBox"
+                          label="Religion"
+                          value="religion"
+                        ></v-checkbox>
+                        <v-row v-if="religionBox">
+                          <v-col cols="4">
+                            <v-subheader>Size</v-subheader>
                           </v-col>
-                          <v-col>
-                            <v-checkbox
-                              v-model="selected"
-                              label="Race"
-                              value="race"
-                            ></v-checkbox>
+                          <v-col cols="8">
+                            <v-text-field
+                              outlined
+                              v-model="payloadRequest.religionSize"
+                            ></v-text-field>
                           </v-col>
+                          <v-slider
+                            v-model="payloadRequest.religionSize"
+                            step="1"
+                            min="0"
+                            max="30"
+                            thumb-label
+                            ticks
+                          ></v-slider>
+                        </v-row>
+                        <v-checkbox
+                          v-model="raceBox"
+                          label="Race"
+                          value="race"
+                        ></v-checkbox>
+                        <v-row v-if="raceBox">
+                          <v-col cols="4">
+                            <v-subheader>Size</v-subheader>
+                          </v-col>
+                          <v-col cols="8">
+                            <v-text-field
+                              outlined
+                              v-model="payloadRequest.raceSize"
+                            ></v-text-field>
+                          </v-col>
+                          <v-slider
+                            v-model="payloadRequest.raceSize"
+                            step="1"
+                            min="0"
+                            max="30"
+                            thumb-label
+                            ticks
+                          ></v-slider>
                         </v-row>
                       </v-card-text>
                       <v-divider></v-divider>
@@ -111,66 +143,62 @@
                           </v-card>
                         </v-col>
                       </v-row>
+                      
                     </v-card>
-
-                    <v-card flat>
-                      <v-card-title>Tolerance Options</v-card-title>
-                      <v-divider></v-divider>
-                      <v-card-text>
-                        <v-slider
-                          v-model="religionVal"
-                          step="1"
-                          min="0"
-                          max="100"
-                          thumb-label
-                          ticks
-                        ></v-slider>
-                        <v-slider
-                          v-model="raceVal"
-                          step="1"
-                          min="0"
-                          max="100"
-                          thumb-label
-                          ticks
-                        ></v-slider
-                        ><v-slider
-                          v-model="whateverVal"
-                          step="1"
-                          min="0"
-                          max="100"
-                          thumb-label
-                          ticks
-                        ></v-slider>
-                      </v-card-text>
-                    </v-card>
-                    <!-- <v-btn @click="randomizer()">Randomize</v-btn> -->
-                    <v-btn @click="mockProcess()">Mock Process</v-btn>
-                    <v-btn @click="sendChartRequest()"
+                    <v-divider></v-divider>
+                    <v-card flat dense>
+                  <v-row>
+                    <v-col
+                    ><v-btn @click="mockProcess()"
+                      >Mock Process</v-btn
+                    ></v-col
+                  >
+                  <v-col
+                    ><v-btn @click="sendChartRequest()"
                       >Start Processing Request</v-btn
-                    >
+                    ></v-col
+                  >
+                  </v-row>
+                     
+                    </v-card>
                   </v-card-text>
                 </v-card>
               </v-col>
               <v-col cols="12" sm="6" md="8">
-                <v-card class="pa-2" outlined tile>
-                  <apexchart
-                    type="heatmap"
-                    :options="chartOptions"
-                    :series="series"
-                  ></apexchart>
-                </v-card>
+                <v-row>
+                  <v-col cols="6">
+                    <v-card outlined tile>
+                      <v-card-title>Type 1</v-card-title>
+                      <apexchart
+                        type="heatmap"
+                        :options="chartOptions"
+                        :series="series"
+                      ></apexchart>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-card outlined tile>
+                      <v-card-title>Type 2</v-card-title>
+                      <apexchart
+                        type="heatmap"
+                        :options="chartOptions"
+                        :series="series"
+                      ></apexchart>
+                    </v-card>
+                  </v-col>
+                </v-row>               
               </v-col>
             </v-row>
-            <v-footer padless>
-              <v-col
-                class="text-center"
-                cols="12"
-              >
-                2021 - <strong>Agent Based Modelling</strong> - Natalia Obukova - Yanik Kipfer - Taylor McCants - Calvin Mitchell Ongkingco 
-              </v-col>
-            </v-footer>
+           
           </v-container>
+         
         </v-main>
+        <v-footer padless>
+          <v-col class="text-center" cols="12">
+            2021 - <strong>Agent Based Modelling</strong> - Natalia Obukova
+            - Yanik Kipfer - Taylor McCants - Calvin Mitchell Ongkingco
+          </v-col>
+        </v-footer>
       </v-app>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -356,12 +384,13 @@
             populationSize: 0,
             vacancySize: 0,
             maxTime: 0,
+            religionSize: 0,
           },
-
+          religionBox: false,
+          raceBox: false,
           populationVal: 0,
           religionVal: 0,
           raceVal: 0,
-          whateverVal: 0,
           selected: [],
           chartOptions: {
             dataLabels: {
